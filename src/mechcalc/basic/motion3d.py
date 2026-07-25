@@ -12,7 +12,7 @@
 
 import numpy as np
 
-from ..core.units import Q_, kg, to_mag
+from ..core.units import Q_, to_mag, ensure_quantity
 from ..core.linalg import as_vec3, skew
 
 
@@ -101,8 +101,8 @@ def gravity_force(mass, rotation=None, g=9.80665):
     :param g: 重力加速度(m/s²)，默认 9.80665
     :return: 重力向量(N)
     """
-    m = kg(mass) if not hasattr(mass, 'magnitude') else mass.to('kg')
-    g_q = Q_(g, 'm/s**2') if not hasattr(g, 'magnitude') else g.to('m/s**2')
+    m = ensure_quantity(mass, 'kg')
+    g_q = ensure_quantity(g, 'm/s**2')
     F_mag = to_mag((m * g_q).to('N'), 'N')
     vec = np.array([0.0, 0.0, -F_mag])
 
@@ -112,4 +112,4 @@ def gravity_force(mass, rotation=None, g=9.80665):
             raise ValueError(f"rotation 需要 3×3 矩阵，得到形状 {R.shape}")
         vec = R @ vec
 
-    return Q_(vec, 'N')
+    return ensure_quantity(vec, 'N')

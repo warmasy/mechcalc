@@ -3,7 +3,7 @@
 动能、势能、功率、扭矩功率换算。
 """
 
-from ..core.units import kg, m, Nm, W, Q_
+from ..core.units import ensure_quantity
 
 
 def kinetic_energy(mass, velocity):
@@ -16,8 +16,8 @@ def kinetic_energy(mass, velocity):
     :param velocity: 速度(m/s)
     :return: 动能(J)
     """
-    m = kg(mass)
-    v = Q_(velocity, 'm/s') if not hasattr(velocity, 'magnitude') else velocity.to('m/s')
+    m = ensure_quantity(mass, 'kg')
+    v = ensure_quantity(velocity, 'm/s')
 
     E = (0.5 * m * v ** 2).to('J')
     return E
@@ -34,9 +34,9 @@ def potential_energy(mass, height, g=9.80665):
     :param g: 重力加速度(m/s²)，默认 9.80665
     :return: 势能(J)
     """
-    m_q = kg(mass)
-    h = m(height) if not hasattr(height, 'magnitude') else height.to('m')
-    g_q = Q_(g, 'm/s**2') if not hasattr(g, 'magnitude') else g.to('m/s**2')
+    m_q = ensure_quantity(mass, 'kg')
+    h = ensure_quantity(height, 'm')
+    g_q = ensure_quantity(g, 'm/s**2')
 
     E = (m_q * g_q * h).to('J')
     return E
@@ -52,8 +52,8 @@ def power(force, velocity):
     :param velocity: 速度(m/s)
     :return: 功率(W)
     """
-    F = Q_(force, 'N') if not hasattr(force, 'magnitude') else force.to('N')
-    v = Q_(velocity, 'm/s') if not hasattr(velocity, 'magnitude') else velocity.to('m/s')
+    F = ensure_quantity(force, 'N')
+    v = ensure_quantity(velocity, 'm/s')
 
     P = (F * v).to('W')
     return P
@@ -69,8 +69,8 @@ def torque_power(torque, angular_velocity):
     :param angular_velocity: 角速度(rad/s)
     :return: 功率(W)
     """
-    T = Nm(torque) if not hasattr(torque, 'magnitude') else torque.to('N*m')
-    omega = Q_(angular_velocity, 'rad/s') if not hasattr(angular_velocity, 'magnitude') else angular_velocity.to('rad/s')
+    T = ensure_quantity(torque, 'N*m')
+    omega = ensure_quantity(angular_velocity, 'rad/s')
 
     P = (T * omega).to('W')
     return P

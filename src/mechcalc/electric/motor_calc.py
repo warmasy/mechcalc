@@ -19,7 +19,7 @@
     {'value': 879.6..., 'unit': 'W'}
 """
 
-from ..core.units import Nm, rpm
+from ..core.units import ensure_quantity
 from ..basic.rotation import angular_velocity
 from ..basic.energy import torque_power
 
@@ -38,8 +38,8 @@ def motor_calc(load_torque, load_speed, safety_factor=1.2):
               'required_speed': 所需转速(rpm),
               'required_power': 所需功率(W)}
     """
-    T = Nm(load_torque) if not hasattr(load_torque, 'magnitude') else load_torque.to('N*m')
-    n = rpm(load_speed) if not hasattr(load_speed, 'magnitude') else load_speed.to('rpm')
+    T = ensure_quantity(load_torque, 'N*m')
+    n = ensure_quantity(load_speed, 'rpm')
 
     T_req = (T * float(safety_factor)).to('N*m')
 

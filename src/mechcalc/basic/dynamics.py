@@ -3,7 +3,7 @@
 重力、摩擦力、离心力、惯性力等。
 """
 
-from ..core.units import kg, N, Q_
+from ..core.units import ensure_quantity
 
 
 def gravity(mass, g=9.80665):
@@ -16,8 +16,8 @@ def gravity(mass, g=9.80665):
     :param g: 重力加速度(m/s²)，默认 9.80665
     :return: 重力(N)
     """
-    m = kg(mass) if not hasattr(mass, 'magnitude') else mass.to('kg')
-    g_q = Q_(g, 'm/s**2') if not hasattr(g, 'magnitude') else g.to('m/s**2')
+    m = ensure_quantity(mass, 'kg')
+    g_q = ensure_quantity(g, 'm/s**2')
 
     F = (m * g_q).to('N')
     return F
@@ -34,7 +34,7 @@ def friction(normal_force, friction_coefficient, static=False):
     :param static: 是否静摩擦(None)，默认 False（动摩擦）
     :return: 摩擦力(N)
     """
-    N_q = N(normal_force) if not hasattr(normal_force, 'magnitude') else normal_force.to('N')
+    N_q = ensure_quantity(normal_force, 'N')
     mu = float(friction_coefficient)
 
     F_f = (N_q * mu).to('N')
@@ -52,9 +52,9 @@ def centrifugal_force(mass, radius, angular_velocity):
     :param angular_velocity: 角速度(rad/s)
     :return: 离心力(N)
     """
-    m = kg(mass)
-    r = Q_(radius, 'm') if not hasattr(radius, 'magnitude') else radius.to('m')
-    omega = Q_(angular_velocity, 'rad/s') if not hasattr(angular_velocity, 'magnitude') else angular_velocity.to('rad/s')
+    m = ensure_quantity(mass, 'kg')
+    r = ensure_quantity(radius, 'm')
+    omega = ensure_quantity(angular_velocity, 'rad/s')
 
     F = (m * omega ** 2 * r).to('N')
     return F
@@ -70,8 +70,8 @@ def inertia_force(mass, acceleration):
     :param acceleration: 加速度(m/s²)
     :return: 惯性力(N)
     """
-    m = kg(mass)
-    a = Q_(acceleration, 'm/s**2') if not hasattr(acceleration, 'magnitude') else acceleration.to('m/s**2')
+    m = ensure_quantity(mass, 'kg')
+    a = ensure_quantity(acceleration, 'm/s**2')
 
     F = (m * a).to('N')
     return F

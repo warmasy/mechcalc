@@ -4,7 +4,7 @@
 """
 
 import math
-from ..core.units import kg, m, mm, Q_
+from ..core.units import ensure_quantity
 
 
 def mass_from_density(density, volume):
@@ -17,8 +17,8 @@ def mass_from_density(density, volume):
     :param volume: 体积(m³)
     :return: 质量(kg)
     """
-    rho = Q_(density, 'kg/m**3') if not hasattr(density, 'magnitude') else density.to('kg/m**3')
-    V = Q_(volume, 'm**3') if not hasattr(volume, 'magnitude') else volume.to('m**3')
+    rho = ensure_quantity(density, 'kg/m**3')
+    V = ensure_quantity(volume, 'm**3')
 
     m = (rho * V).to('kg')
     return m
@@ -34,8 +34,8 @@ def cylinder_volume(diameter, length):
     :param length: 长度(m)
     :return: 体积(m³)
     """
-    D = m(diameter) if not hasattr(diameter, 'magnitude') else diameter.to('m')
-    L = m(length) if not hasattr(length, 'magnitude') else length.to('m')
+    D = ensure_quantity(diameter, 'm')
+    L = ensure_quantity(length, 'm')
 
     V = (math.pi * (D / 2) ** 2 * L).to('m**3')
     return V
@@ -50,7 +50,7 @@ def sphere_volume(diameter):
     :param diameter: 直径(m)
     :return: 体积(m³)
     """
-    D = m(diameter) if not hasattr(diameter, 'magnitude') else diameter.to('m')
+    D = ensure_quantity(diameter, 'm')
 
     V = (math.pi * D ** 3 / 6).to('m**3')
     return V
@@ -67,9 +67,9 @@ def cuboid_volume(length, width, height):
     :param height: 高度(m)
     :return: 体积(m³)
     """
-    L = m(length) if not hasattr(length, 'magnitude') else length.to('m')
-    W = m(width) if not hasattr(width, 'magnitude') else width.to('m')
-    H = m(height) if not hasattr(height, 'magnitude') else height.to('m')
+    L = ensure_quantity(length, 'm')
+    W = ensure_quantity(width, 'm')
+    H = ensure_quantity(height, 'm')
 
     V = (L * W * H).to('m**3')
     return V

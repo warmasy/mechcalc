@@ -15,9 +15,8 @@
 """
 
 import math
-from ..core.units import MPa, mm, N, Q_
-from ..core.units import to_mag, to_unit
-from ..utils.result import Result
+from ..core.units import mm, ensure_quantity
+from ..core.units import to_mag
 
 # 标准缸径表（单位: mm）
 STD_BORES = [6, 8, 10, 12, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320]
@@ -37,8 +36,8 @@ def push_force(P, D, d=None, efficiency=0.85):
     :param efficiency: 机械效率(None)，默认 0.85
     :return: {'F': 推力(N), 'A': 面积(mm²)}
     """
-    P = MPa(P)
-    D = mm(D)
+    P = ensure_quantity(P, 'MPa')
+    D = ensure_quantity(D, 'mm')
     eta = float(efficiency)
 
     A = math.pi * (D / 2) ** 2
@@ -57,12 +56,12 @@ def pull_force(P, D, d=None, efficiency=0.85):
     :param efficiency: 机械效率(None)，默认 0.85
     :return: {'F': 拉力(N), 'A': 面积(mm²)}
     """
-    P = MPa(P)
-    D = mm(D)
+    P = ensure_quantity(P, 'MPa')
+    D = ensure_quantity(D, 'mm')
     if d is None:
         d = mm(max(round(float(D.magnitude) * ROD_DIA_RATIO), ROD_DIA_MIN))
     else:
-        d = mm(d)
+        d = ensure_quantity(d, 'mm')
     eta = float(efficiency)
 
     A = math.pi * ((D / 2) ** 2 - (d / 2) ** 2)
@@ -82,11 +81,11 @@ def air_consumption(D, L, t, P, atm=0.1013):
     :param atm: 大气压(MPa)，默认 0.1013
     :return: {'air_consumption': 耗气量(L/min), 'volume_per_stroke': 单行程容积(L)}
     """
-    D = mm(D)
-    L = mm(L)
+    D = ensure_quantity(D, 'mm')
+    L = ensure_quantity(L, 'mm')
     t_val = float(t)
-    P = MPa(P)
-    atm_q = MPa(atm) if not hasattr(atm, 'magnitude') else atm.to('MPa')
+    P = ensure_quantity(P, 'MPa')
+    atm_q = ensure_quantity(atm, 'MPa')
 
     A = math.pi * (D / 2) ** 2
     vol_per_stroke = (A * L).to('L')
@@ -96,7 +95,7 @@ def air_consumption(D, L, t, P, atm=0.1013):
     vol_std = vol_per_stroke * ratio
 
     cycles_per_min = 60.0 / t_val
-    Q = vol_std * Q_(cycles_per_min, '1/min')
+    Q = vol_std * ensure_quantity(cycles_per_min, '1/min')
 
     return {
         'air_consumption': Q.to('L/min'),
@@ -115,16 +114,16 @@ def cylinder_select(F, P, L, eta=0.85, S=1.3):
     :param S: 安全系数(None)，默认 1.3
     :return: 选型结果
     """
-    F = N(F)
-    P = MPa(P)
-    L = mm(L)
+    F = ensure_quantity(F, 'N')
+    P = ensure_quantity(P, 'MPa')
+    L = ensure_quantity(L, 'mm')
     eta = float(eta)
     S = float(S)
 
     F_N = to_mag(F, 'N')
     P_MPa = to_mag(P, 'MPa')
     D_theory_mm = math.sqrt(4 * F_N * S / (math.pi * P_MPa * eta))
-    D_theory = mm(D_theory_mm)
+    D_theory = ensure_quantity(D_theory_mm, 'mm')
 
     selected_bore = None
     for bore in STD_BORES:
@@ -143,7 +142,7 @@ def cylinder_select(F, P, L, eta=0.85, S=1.3):
 
     return {
         'theoretical_bore': D_theory.to('mm'),
-        'selected_bore': Q_(selected_bore, 'mm'),
+        'selected_bore': ensure_quantity(selected_bore, 'mm'),
         'push_force': F_actual.to('N'),
         'pull_force': F_pull.to('N'),
         'rod_diameter': d_rod.to('mm'),

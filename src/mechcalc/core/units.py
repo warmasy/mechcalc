@@ -8,7 +8,7 @@
   3. 组合单位: kg_m2(0.015), m_s(10)
 """
 
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, Optional, Any
 from pint import UnitRegistry
 
 # 全局单位注册表

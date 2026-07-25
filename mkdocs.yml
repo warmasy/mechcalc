@@ -1,0 +1,54 @@
+site_name: mechcalc 机械工程计算库
+site_description: 基于 pint 的机械工程计算库——惯量、三维运动、气动、电机计算
+docs_dir: docs
+
+theme:
+  name: material
+  language: zh
+  palette:
+    primary: blue grey
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+
+nav:
+  - 首页: index.md
+  - 使用指南:
+      - 快速开始: guide/quickstart.md
+      - 单位系统: guide/units.md
+  - 计算原理:
+      - 惯量计算: theory/inertia.md
+      - 三维运动: theory/motion3d.md
+      - 气动计算: theory/pneumatic.md
+  - API 参考:
+      - 惯量 inertia: api/inertia.md
+      - 基础力学 basic: api/basic.md
+      - 气动 pneumatic: api/pneumatic.md
+      - 电机 electric: api/electric.md
+      - 核心工具 core: api/core.md
+      - 通用工具 utils: api/utils.md
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  - attr_list
+  - tables
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: sphinx
+            show_source: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

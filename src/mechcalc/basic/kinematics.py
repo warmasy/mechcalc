@@ -3,7 +3,7 @@
 直线运动的基本公式：速度、位移、加速度。
 """
 
-from ..core.units import m, s, Q_
+from ..core.units import ensure_quantity
 
 
 def velocity(displacement, time):
@@ -16,8 +16,8 @@ def velocity(displacement, time):
     :param time: 时间(s)
     :return: 速度(m/s)
     """
-    dist = m(displacement)
-    t = s(time)
+    dist = ensure_quantity(displacement, 'm')
+    t = ensure_quantity(time, 's')
     v = (dist / t).to('m/s')
     return v
 
@@ -32,8 +32,8 @@ def displacement(velocity, time):
     :param time: 时间(s)
     :return: 位移(m)
     """
-    v = Q_(velocity, 'm/s') if not hasattr(velocity, 'magnitude') else velocity.to('m/s')
-    t = s(time)
+    v = ensure_quantity(velocity, 'm/s')
+    t = ensure_quantity(time, 's')
     s_val = (v * t).to('m')
     return s_val
 
@@ -48,8 +48,8 @@ def acceleration(velocity_change, time):
     :param time: 时间(s)
     :return: 加速度(m/s²)
     """
-    dv = Q_(velocity_change, 'm/s') if not hasattr(velocity_change, 'magnitude') else velocity_change.to('m/s')
-    t = s(time)
+    dv = ensure_quantity(velocity_change, 'm/s')
+    t = ensure_quantity(time, 's')
     a = (dv / t).to('m/s**2')
     return a
 
@@ -62,8 +62,8 @@ def uniform_motion(velocity, time):
     :param time: 时间(s)
     :return: {'displacement': 位移(m), 'velocity': 速度(m/s)}
     """
-    v = Q_(velocity, 'm/s') if not hasattr(velocity, 'magnitude') else velocity.to('m/s')
-    t = s(time)
+    v = ensure_quantity(velocity, 'm/s')
+    t = ensure_quantity(time, 's')
     s_val = (v * t).to('m')
     return {'displacement': s_val, 'velocity': v}
 
@@ -81,10 +81,10 @@ def uniform_acceleration(v0, v1, t, s=None):
     :param s: 位移(m)，可选，用于校验
     :return: {'acceleration': 加速度, 'displacement': 位移, 'avg_velocity': 平均速度}
     """
-    v0_q = Q_(v0, 'm/s') if not hasattr(v0, 'magnitude') else v0.to('m/s')
-    v1_q = Q_(v1, 'm/s') if not hasattr(v1, 'magnitude') else v1.to('m/s')
-    # 注意：参数 s 遮蔽了单位函数 s()，这里改用 Q_
-    t_q = Q_(t, 's') if not hasattr(t, 'magnitude') else t.to('s')
+    v0_q = ensure_quantity(v0, 'm/s')
+    v1_q = ensure_quantity(v1, 'm/s')
+    # 注意：参数 s 与单位秒同名，这里用 ensure_quantity 统一处理
+    t_q = ensure_quantity(t, 's')
 
     a = ((v1_q - v0_q) / t_q).to('m/s**2')
     s_calc = ((v0_q + v1_q) / 2 * t_q).to('m')

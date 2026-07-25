@@ -54,6 +54,7 @@ from .inertia import (
     ball_screw,
     gear_rack,
     gearbox,
+    inclined_rod,
     # 惯量张量（向量化）
     solid_cylinder_tensor,
     hollow_cylinder_tensor,
@@ -93,6 +94,7 @@ __all__ = [
     # 惯量
     "solid_cylinder", "hollow_cylinder", "point_mass",
     "straight_rod", "conveyor_belt", "ball_screw", "gear_rack", "gearbox",
+    "inclined_rod",
     "solid_cylinder_tensor", "hollow_cylinder_tensor",
     "parallel_axis_tensor", "inertia_about_axis",
     # 气缸

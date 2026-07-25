@@ -15,7 +15,7 @@
 
 import numpy as np
 
-from ..core.units import Q_, kg, mm, to_mag
+from ..core.units import Q_, to_mag, ensure_quantity
 from ..core.linalg import as_vec3, as_vecs
 from .inertia import solid_cylinder, hollow_cylinder
 
@@ -43,9 +43,9 @@ def solid_cylinder_tensor(mass, outer_diameter, length):
     :param length: 长度(mm)
     :return: 3×3 惯量张量(kg·m²)
     """
-    m = kg(mass) if not hasattr(mass, 'magnitude') else mass.to('kg')
-    D = mm(outer_diameter) if not hasattr(outer_diameter, 'magnitude') else outer_diameter.to('mm')
-    L = mm(length) if not hasattr(length, 'magnitude') else length.to('mm')
+    m = ensure_quantity(mass, 'kg')
+    D = ensure_quantity(outer_diameter, 'mm')
+    L = ensure_quantity(length, 'mm')
 
     # 复用标量函数，保证与 solid_cylinder 一致
     Izz = to_mag(solid_cylinder(to_mag(m, 'kg'), to_mag(D, 'mm')), 'kg*m**2')
@@ -71,10 +71,10 @@ def hollow_cylinder_tensor(mass, outer_diameter, inner_diameter, length):
     :param length: 长度(mm)
     :return: 3×3 惯量张量(kg·m²)
     """
-    m = kg(mass) if not hasattr(mass, 'magnitude') else mass.to('kg')
-    D = mm(outer_diameter) if not hasattr(outer_diameter, 'magnitude') else outer_diameter.to('mm')
-    d = mm(inner_diameter) if not hasattr(inner_diameter, 'magnitude') else inner_diameter.to('mm')
-    L = mm(length) if not hasattr(length, 'magnitude') else length.to('mm')
+    m = ensure_quantity(mass, 'kg')
+    D = ensure_quantity(outer_diameter, 'mm')
+    d = ensure_quantity(inner_diameter, 'mm')
+    L = ensure_quantity(length, 'mm')
 
     Izz = to_mag(hollow_cylinder(to_mag(m, 'kg'), to_mag(D, 'mm'), to_mag(d, 'mm')), 'kg*m**2')
 
@@ -99,11 +99,11 @@ def parallel_axis_tensor(inertia_tensor, mass, offset):
     :return: 3×3 惯量张量(kg·m²)
     """
     I = _as_tensor(inertia_tensor)
-    m = kg(mass) if not hasattr(mass, 'magnitude') else mass.to('kg')
+    m = ensure_quantity(mass, 'kg')
     r = as_vec3(offset, 'm')
 
     I_new = I + to_mag(m, 'kg') * (r @ r * np.eye(3) - np.outer(r, r))
-    return Q_(I_new, 'kg*m**2')
+    return ensure_quantity(I_new, 'kg*m**2')
 
 
 def inertia_about_axis(inertia_tensor, axis):
