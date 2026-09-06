@@ -4,13 +4,17 @@
 """
 
 from .cylinder import (
-    push_force,
-    pull_force,
+    STD_BORES,
     air_consumption,
     cylinder_select,
-    STD_BORES,
+    pull_force,
+    push_force,
 )
 
 __all__ = [
-    'push_force', 'pull_force', 'air_consumption', 'cylinder_select', 'STD_BORES',
+    "push_force",
+    "pull_force",
+    "air_consumption",
+    "cylinder_select",
+    "STD_BORES",
 ]

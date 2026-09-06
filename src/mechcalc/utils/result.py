@@ -16,7 +16,8 @@ Result 同时支持 dict 接口和属性访问。
 import functools
 import inspect
 import re
-from typing import Dict, List, Any, Optional
+from collections.abc import Callable
+from typing import Any
 
 from ..core.units import Q_, to_mag, to_unit
 
@@ -35,9 +36,9 @@ class Result(dict):
         params: dict - 输入参数
     """
 
-    _RESERVED_KEYS = {'params'}
+    _RESERVED_KEYS = {"params"}
 
-    def __init__(self, params: Dict[str, Any], results: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any], results: dict[str, Any]):
         conflicts = set(results.keys()) & self._RESERVED_KEYS
         if conflicts:
             raise ValueError(
@@ -48,14 +49,16 @@ class Result(dict):
         self.params = params
 
     def __getattr__(self, key: str) -> Any:
-        if key in ('__dict__', '__class__', '__slots__'):
+        if key in ("__dict__", "__class__", "__slots__"):
             raise AttributeError(key)
         if key in self:
             return self[key]
         try:
             return self.__dict__[key]
         except KeyError:
-            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{key}'")
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{key}'"
+            ) from None
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key in self._RESERVED_KEYS:
@@ -75,17 +78,18 @@ class Result(dict):
             lines.append(f"  {k} = {v}")
         return "\n".join(lines)
 
-    def to_api(self) -> Dict[str, Any]:
+    def to_api(self) -> dict[str, Any]:
         """转换为 API/JSON 可用的完整字典结构"""
         return {
-            'params': self.params,
+            "params": self.params,
             **dict(self),
         }
 
 
 # ==================== Result 调度 ====================
 
-def _parse_param_units_from_docstring(docstring: Optional[str]) -> Dict[str, str]:
+
+def _parse_param_units_from_docstring(docstring: str | None) -> dict[str, str]:
     """
     从 Sphinx 风格 docstring 的 :param 行中提取参数单位。
 
@@ -98,40 +102,40 @@ def _parse_param_units_from_docstring(docstring: Optional[str]) -> Dict[str, str
         :param D: 气缸缸径(mm)         → {'D': 'mm'}
         :param efficiency: 效率(None)    → {'efficiency': ''}
     """
-    units: Dict[str, str] = {}
+    units: dict[str, str] = {}
     if not docstring:
         return units
 
-    for line in docstring.split('\n'):
+    for line in docstring.split("\n"):
         line = line.strip()
-        if not line.startswith(':param'):
+        if not line.startswith(":param"):
             continue
 
-        m = re.match(r':param\s+(\w+)', line)
+        m = re.match(r":param\s+(\w+)", line)
         if not m:
             continue
         name = m.group(1)
 
-        paren = re.search(r'\(([^)]*)\)', line)
+        paren = re.search(r"\(([^)]*)\)", line)
         if paren:
             unit = paren.group(1).strip()
-            if unit and unit.lower() not in ('none', '-', 'null', 'na', 'n/a'):
+            if unit and unit.lower() not in ("none", "-", "null", "na", "n/a"):
                 units[name] = unit
             else:
-                units[name] = ''
+                units[name] = ""
         else:
-            units[name] = ''
+            units[name] = ""
 
     return units
 
 
-@functools.lru_cache(maxsize=None)
-def _param_units_of(func) -> Dict[str, str]:
+@functools.cache
+def _param_units_of(func: Callable) -> dict[str, str]:
     """缓存每个函数的 docstring 参数单位解析结果"""
     return _parse_param_units_from_docstring(func.__doc__)
 
 
-def to_result(func, *args, **kwargs) -> Result:
+def to_result(func: Callable, *args: Any, **kwargs: Any) -> Result:
     """
     调用计算函数并返回 Result（带参数记录和单位）。
 
@@ -154,7 +158,7 @@ def to_result(func, *args, **kwargs) -> Result:
     bound = inspect.signature(func).bind(*args, **kwargs)
     bound.apply_defaults()
 
-    params: Dict[str, Any] = {}
+    params: dict[str, Any] = {}
     for name, val in bound.arguments.items():
         if val is None:
             params[name] = None
@@ -172,7 +176,7 @@ def to_result(func, *args, **kwargs) -> Result:
     return Result(params=params, results=_format_results(raw))
 
 
-def _format_results(raw: Any) -> Dict[str, Any]:
+def _format_results(raw: Any) -> dict[str, Any]:
     """将原始计算结果格式化为 Result.results 的标准结构"""
     if raw is None:
         return {}
@@ -181,7 +185,7 @@ def _format_results(raw: Any) -> Dict[str, Any]:
         return {"value": {"value": to_mag(raw), "unit": to_unit(raw)}}
 
     if isinstance(raw, dict):
-        results: Dict[str, Any] = {}
+        results: dict[str, Any] = {}
         for k, v in raw.items():
             if hasattr(v, "magnitude"):
                 results[k] = {"value": to_mag(v), "unit": to_unit(v)}
@@ -206,7 +210,8 @@ def _format_results(raw: Any) -> Dict[str, Any]:
 
 # ==================== 批量计算工具 ====================
 
-def calc_batch(func, cases: List[Dict[str, Any]]) -> List[Result]:
+
+def calc_batch(func: Callable, cases: list[dict[str, Any]]) -> list[Result]:
     """
     批量计算工具。
 
@@ -232,7 +237,7 @@ def calc_batch(func, cases: List[Dict[str, Any]]) -> List[Result]:
             results.append(
                 Result(
                     params=case,
-                    results={'error': str(e)},
+                    results={"error": str(e)},
                 )
             )
     return results

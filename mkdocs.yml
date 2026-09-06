@@ -1,17 +1,40 @@
 site_name: mechcalc 机械工程计算库
 site_description: 基于 pint 的机械工程计算库——惯量、三维运动、气动、电机计算
 docs_dir: docs
+repo_url: https://github.com/mechcalc/mechcalc
+repo_name: mechcalc/mechcalc
 
 theme:
   name: material
   language: zh
+  icon:
+    repo: fontawesome/brands/github
   palette:
-    primary: blue grey
+    - scheme: slate
+      accent: cyan
+      toggle:
+        icon: material/brightness-2
+        name: "切换到浅色模式"
+    - scheme: default
+      accent: indigo
+      toggle:
+        icon: material/brightness-5
+        name: "切换到暗色模式"
+  font:
+    text: Noto Sans
+    code: Roboto Mono
   features:
-    - navigation.sections
+    - navigation.instant
+    - navigation.instant.prefetch
     - navigation.top
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.path
+    - navigation.indexes
+    - navigation.prune
     - content.code.copy
-    - content.code.annotate
+    - toc.follow
+    - announce.dismiss
 
 nav:
   - 首页: index.md
@@ -20,6 +43,7 @@ nav:
       - 单位系统: guide/units.md
   - 计算原理:
       - 惯量计算: theory/inertia.md
+      - 惯性张量入门教程: theory/inertia_tensor_guide.md
       - 三维运动: theory/motion3d.md
       - 气动计算: theory/pneumatic.md
   - API 参考:
@@ -33,12 +57,17 @@ nav:
 markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      anchor_linenums: true
   - pymdownx.superfences
   - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - admonition
   - attr_list
+  - md_in_html
   - tables
+  - def_list
 
 plugins:
   - search
@@ -49,6 +78,11 @@ plugins:
             docstring_style: sphinx
             show_source: true
 
+extra_css:
+  - stylesheets/extra.css
+
 extra_javascript:
   - javascripts/mathjax.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+copyright: Copyright &copy; 2026 mechcalc

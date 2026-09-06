@@ -1,33 +1,39 @@
 """core.linalg 向量工具测试"""
 
 import math
+
 import numpy as np
 import pytest
 from pint import DimensionalityError
 
 from mechcalc.core.linalg import (
-    as_vec3, as_vecs, skew, unit_vector, rot_x, rot_y, rot_z,
+    as_vec3,
+    as_vecs,
+    rot_x,
+    rot_y,
+    rot_z,
+    skew,
+    unit_vector,
 )
 from mechcalc.core.units import Q_
 
 
 class TestAsVec3:
     def test_raw_list(self):
-        np.testing.assert_allclose(as_vec3([1, 2, 3], 'm'), [1, 2, 3])
+        np.testing.assert_allclose(as_vec3([1, 2, 3], "m"), [1, 2, 3])
 
     def test_quantity_converted(self):
         # mm 自动换算成 m
-        np.testing.assert_allclose(
-            as_vec3(Q_([100, 200, 0], 'mm'), 'm'), [0.1, 0.2, 0.0])
+        np.testing.assert_allclose(as_vec3(Q_([100, 200, 0], "mm"), "m"), [0.1, 0.2, 0.0])
 
     def test_wrong_shape(self):
         with pytest.raises(ValueError):
-            as_vec3([1, 2], 'm')
+            as_vec3([1, 2], "m")
 
     def test_wrong_dimension(self):
         # 量纲错误在入口被拦截
         with pytest.raises(DimensionalityError):
-            as_vec3(Q_([1, 2, 3], 's'), 'm')
+            as_vec3(Q_([1, 2, 3], "s"), "m")
 
 
 class TestAsVecs:
@@ -75,7 +81,7 @@ class TestRotation:
         np.testing.assert_allclose(R @ np.array([1.0, 0, 0]), [0, 0, -1], atol=1e-12)
 
     def test_accepts_deg_quantity(self):
-        R = rot_z(Q_(90, 'deg'))
+        R = rot_z(Q_(90, "deg"))
         np.testing.assert_allclose(R @ np.array([1.0, 0, 0]), [0, 1, 0], atol=1e-12)
 
     def test_orthogonal_and_proper(self):

@@ -14,16 +14,16 @@
 """
 
 import numpy as np
+from pint import Quantity
 
-from ..core.units import Q_, to_mag, ensure_quantity
-from ..core.linalg import as_vec3, as_vecs
-from .inertia import solid_cylinder, hollow_cylinder
+from ..core.linalg import VecLike, as_vec3, as_vecs
+from ..core.units import Q_, QuantityLike, set_quantity, to_mag
 
 
-def _as_tensor(inertia_tensor):
+def _as_tensor(inertia_tensor: Quantity | np.ndarray) -> np.ndarray:
     """惯量张量输入规范化 -> (3,3) SI 数值数组。裸数组按 kg·m² 解释。"""
-    if hasattr(inertia_tensor, 'magnitude'):
-        arr = np.asarray(inertia_tensor.to('kg*m**2').magnitude, dtype=float)
+    if hasattr(inertia_tensor, "magnitude"):
+        arr = np.asarray(inertia_tensor.to("kg*m**2").magnitude, dtype=float)
     else:
         arr = np.asarray(inertia_tensor, dtype=float)
     if arr.shape != (3, 3):
@@ -31,11 +31,13 @@ def _as_tensor(inertia_tensor):
     return arr
 
 
-def solid_cylinder_tensor(mass, outer_diameter, length):
+def solid_cylinder_tensor(
+    mass: QuantityLike, outer_diameter: QuantityLike, length: QuantityLike
+) -> Quantity:
     """
     实心圆柱惯量张量（质心坐标系，对称轴为 z）。
 
-    Izz = m·R²/2（复用标量 solid_cylinder）
+    Izz = m·R²/2（绕对称轴，与 cylinder().J_y 一致）
     Ixx = Iyy = m·(3R² + L²)/12
 
     :param mass: 质量(kg)
@@ -43,26 +45,29 @@ def solid_cylinder_tensor(mass, outer_diameter, length):
     :param length: 长度(mm)
     :return: 3×3 惯量张量(kg·m²)
     """
-    m = ensure_quantity(mass, 'kg')
-    D = ensure_quantity(outer_diameter, 'mm')
-    L = ensure_quantity(length, 'mm')
+    m = set_quantity(mass, "kg")
+    D = set_quantity(outer_diameter, "mm")
+    L = set_quantity(length, "mm")
 
-    # 复用标量函数，保证与 solid_cylinder 一致
-    Izz = to_mag(solid_cylinder(to_mag(m, 'kg'), to_mag(D, 'mm')), 'kg*m**2')
-
-    R = to_mag(D, 'm') / 2
-    L_m = to_mag(L, 'm')
-    m_val = to_mag(m, 'kg')
+    R = to_mag(D, "m") / 2
+    L_m = to_mag(L, "m")
+    m_val = to_mag(m, "kg")
+    Izz = m_val * R**2 / 2
     Ixx = Iyy = m_val * (3 * R**2 + L_m**2) / 12
 
-    return Q_(np.diag([Ixx, Iyy, Izz]), 'kg*m**2')
+    return Q_(np.diag([Ixx, Iyy, Izz]), "kg*m**2")
 
 
-def hollow_cylinder_tensor(mass, outer_diameter, inner_diameter, length):
+def hollow_cylinder_tensor(
+    mass: QuantityLike,
+    outer_diameter: QuantityLike,
+    inner_diameter: QuantityLike,
+    length: QuantityLike,
+) -> Quantity:
     """
     空心圆柱惯量张量（质心坐标系，对称轴为 z）。
 
-    Izz = m·(R² + r²)/2（复用标量 hollow_cylinder）
+    Izz = m·(R² + r²)/2（绕对称轴，与 tube().J_y 一致）
     Ixx = Iyy = m·(3(R² + r²) + L²)/12
 
     :param mass: 质量(kg)
@@ -71,23 +76,26 @@ def hollow_cylinder_tensor(mass, outer_diameter, inner_diameter, length):
     :param length: 长度(mm)
     :return: 3×3 惯量张量(kg·m²)
     """
-    m = ensure_quantity(mass, 'kg')
-    D = ensure_quantity(outer_diameter, 'mm')
-    d = ensure_quantity(inner_diameter, 'mm')
-    L = ensure_quantity(length, 'mm')
+    m = set_quantity(mass, "kg")
+    D = set_quantity(outer_diameter, "mm")
+    d = set_quantity(inner_diameter, "mm")
+    L = set_quantity(length, "mm")
 
-    Izz = to_mag(hollow_cylinder(to_mag(m, 'kg'), to_mag(D, 'mm'), to_mag(d, 'mm')), 'kg*m**2')
-
-    R2 = (to_mag(D, 'm') / 2) ** 2
-    r2 = (to_mag(d, 'm') / 2) ** 2
-    L_m = to_mag(L, 'm')
-    m_val = to_mag(m, 'kg')
+    R2 = (to_mag(D, "m") / 2) ** 2
+    r2 = (to_mag(d, "m") / 2) ** 2
+    L_m = to_mag(L, "m")
+    m_val = to_mag(m, "kg")
+    Izz = m_val * (R2 + r2) / 2
     Ixx = Iyy = m_val * (3 * (R2 + r2) + L_m**2) / 12
 
-    return Q_(np.diag([Ixx, Iyy, Izz]), 'kg*m**2')
+    return Q_(np.diag([Ixx, Iyy, Izz]), "kg*m**2")
 
 
-def parallel_axis_tensor(inertia_tensor, mass, offset):
+def parallel_axis_tensor(
+    inertia_tensor: Quantity | np.ndarray,
+    mass: QuantityLike,
+    offset: VecLike,
+) -> Quantity:
     """
     平行移轴定理（张量形式）。
 
@@ -99,14 +107,17 @@ def parallel_axis_tensor(inertia_tensor, mass, offset):
     :return: 3×3 惯量张量(kg·m²)
     """
     I = _as_tensor(inertia_tensor)
-    m = ensure_quantity(mass, 'kg')
-    r = as_vec3(offset, 'm')
+    m = set_quantity(mass, "kg")
+    r = as_vec3(offset, "m")
 
-    I_new = I + to_mag(m, 'kg') * (r @ r * np.eye(3) - np.outer(r, r))
-    return ensure_quantity(I_new, 'kg*m**2')
+    I_new = I + to_mag(m, "kg") * (r @ r * np.eye(3) - np.outer(r, r))
+    return set_quantity(I_new, "kg*m**2")
 
 
-def inertia_about_axis(inertia_tensor, axis):
+def inertia_about_axis(
+    inertia_tensor: Quantity | np.ndarray,
+    axis: VecLike,
+) -> Quantity:
     """
     任意方向轴的等效转动惯量。
 
@@ -121,5 +132,5 @@ def inertia_about_axis(inertia_tensor, axis):
     n = as_vecs(axis)
 
     if n.ndim == 1:
-        return Q_(float(n @ I @ n), 'kg*m**2')
-    return Q_(np.einsum('ni,ij,nj->n', n, I, n), 'kg*m**2')
+        return Q_(float(n @ I @ n), "kg*m**2")
+    return Q_(np.einsum("ni,ij,nj->n", n, I, n), "kg*m**2")

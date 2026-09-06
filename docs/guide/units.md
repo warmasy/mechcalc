@@ -6,21 +6,9 @@
 
 | 场景 | 工具 | 例子 |
 |------|------|------|
-| 收参（函数入口，两种输入通吃） | `ensure_quantity(v, unit)` | `ensure_quantity(mass, 'kg')` |
-| 造量（构造返回值/中间量） | `Q_(值, '单位')` 或快捷函数 | `Q_(J, 'kg*m**2')`、`mc.kg(10)` |
+| 收参（函数入口，两种输入通吃） | `set_quantity(v, unit)` | `set_quantity(mass, 'kg')` |
+| 造量（构造返回值/中间量） | `Q_(值, '单位')` | `Q_(J, 'kg*m**2')` |
 | 去向量化（剥成 SI 数组） | `as_vec3` / `as_vecs` | `as_vec3(pos, 'm')` |
-
-## 单位快捷函数
-
-常用单位有快捷构造器（就是 `Q_(v, '单位')` 的缩写）：
-
-```python
-mc.kg(10)      # ≡ mc.Q_(10, 'kg')
-mc.mm(100)     # ≡ mc.Q_(100, 'mm')
-mc.MPa(0.4)    # ≡ mc.Q_(0.4, 'MPa')
-```
-
-完整列表：`kg, mm, m, s, N, Nm, MPa, rpm, kg_m2, kW, W`。
 
 ## 单位提取
 
@@ -41,4 +29,4 @@ to_unit(mc.Q_(100, 'mm'))       # 'mm'
 ## 常见坑
 
 !!! warning "pint 的常量陷阱"
-    `ureg.g` 是**克**、`ureg.h` 是**小时**、`ureg.G` 是**高斯**——pint 把它们解析成单位而不是物理常数。物理常数要用全名 `ureg.standard_gravity` 等。完整常量数值见项目根目录《物理常量参考.md》。
+    `ureg.g` 是**克**、`ureg.h` 是**小时**、`ureg.G` 是**高斯**——pint 把它们解析成单位而不是物理常数。物理常数要用全名 `ureg.standard_gravity` 等。本书所有 g 均为重力加速度默认值 9.80665 m/s²，作为函数参数传入，不依赖 pint 常量名。

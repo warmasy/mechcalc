@@ -4,10 +4,13 @@
 """
 
 import math
-from ..core.units import Q_, ensure_quantity
+
+from pint import Quantity
+
+from ..core.units import Q_, QuantityLike, set_quantity
 
 
-def angular_velocity(rpm_speed):
+def angular_velocity(rpm_speed: QuantityLike) -> Quantity:
     """
     转速转角速度。
 
@@ -16,13 +19,13 @@ def angular_velocity(rpm_speed):
     :param rpm_speed: 转速(rpm)
     :return: 角速度(rad/s)
     """
-    n = ensure_quantity(rpm_speed, 'rpm')
+    n = set_quantity(rpm_speed, "rpm")
     n_val = float(n.magnitude)
-    omega = Q_(n_val * 2 * math.pi / 60, 'rad/s')
+    omega = Q_(n_val * 2 * math.pi / 60, "rad/s")
     return omega
 
 
-def angular_acceleration(omega_change, time):
+def angular_acceleration(omega_change: QuantityLike, time: QuantityLike) -> Quantity:
     """
     角加速度。
 
@@ -32,14 +35,14 @@ def angular_acceleration(omega_change, time):
     :param time: 时间(s)
     :return: 角加速度(rad/s²)
     """
-    dw = ensure_quantity(omega_change, 'rad/s')
-    t = ensure_quantity(time, 's')
+    dw = set_quantity(omega_change, "rad/s")
+    t = set_quantity(time, "s")
 
-    alpha = (dw / t).to('rad/s**2')
+    alpha = (dw / t).to("rad/s**2")
     return alpha
 
 
-def tangential_velocity(radius, angular_velocity):
+def tangential_velocity(radius: QuantityLike, angular_velocity: QuantityLike) -> Quantity:
     """
     切向线速度。
 
@@ -49,14 +52,17 @@ def tangential_velocity(radius, angular_velocity):
     :param angular_velocity: 角速度(rad/s)
     :return: 切向速度(m/s)
     """
-    r = ensure_quantity(radius, 'm')
-    omega = ensure_quantity(angular_velocity, 'rad/s')
+    r = set_quantity(radius, "m")
+    omega = set_quantity(angular_velocity, "rad/s")
 
-    v = (omega * r).to('m/s')
+    v = (omega * r).to("m/s")
     return v
 
 
-def tangential_acceleration(radius, angular_acceleration):
+def tangential_acceleration(
+    radius: QuantityLike,
+    angular_acceleration: QuantityLike,
+) -> Quantity:
     """
     切向加速度。
 
@@ -66,8 +72,8 @@ def tangential_acceleration(radius, angular_acceleration):
     :param angular_acceleration: 角加速度(rad/s²)
     :return: 切向加速度(m/s²)
     """
-    r = ensure_quantity(radius, 'm')
-    alpha = ensure_quantity(angular_acceleration, 'rad/s**2')
+    r = set_quantity(radius, "m")
+    alpha = set_quantity(angular_acceleration, "rad/s**2")
 
-    a_t = (alpha * r).to('m/s**2')
+    a_t = (alpha * r).to("m/s**2")
     return a_t

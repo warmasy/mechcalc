@@ -4,10 +4,13 @@
 """
 
 import math
-from ..core.units import ensure_quantity
+
+from pint import Quantity
+
+from ..core.units import QuantityLike, set_quantity
 
 
-def mass_from_density(density, volume):
+def mass_from_density(density: QuantityLike, volume: QuantityLike) -> Quantity:
     """
     由密度和体积计算质量。
 
@@ -17,14 +20,14 @@ def mass_from_density(density, volume):
     :param volume: 体积(m³)
     :return: 质量(kg)
     """
-    rho = ensure_quantity(density, 'kg/m**3')
-    V = ensure_quantity(volume, 'm**3')
+    rho = set_quantity(density, "kg/m**3")
+    V = set_quantity(volume, "m**3")
 
-    m = (rho * V).to('kg')
+    m = (rho * V).to("kg")
     return m
 
 
-def cylinder_volume(diameter, length):
+def cylinder_volume(diameter: QuantityLike, length: QuantityLike) -> Quantity:
     """
     圆柱体体积。
 
@@ -34,14 +37,14 @@ def cylinder_volume(diameter, length):
     :param length: 长度(m)
     :return: 体积(m³)
     """
-    D = ensure_quantity(diameter, 'm')
-    L = ensure_quantity(length, 'm')
+    D = set_quantity(diameter, "m")
+    L = set_quantity(length, "m")
 
-    V = (math.pi * (D / 2) ** 2 * L).to('m**3')
+    V = (math.pi * (D / 2) ** 2 * L).to("m**3")
     return V
 
 
-def sphere_volume(diameter):
+def sphere_volume(diameter: QuantityLike) -> Quantity:
     """
     球体体积。
 
@@ -50,13 +53,17 @@ def sphere_volume(diameter):
     :param diameter: 直径(m)
     :return: 体积(m³)
     """
-    D = ensure_quantity(diameter, 'm')
+    D = set_quantity(diameter, "m")
 
-    V = (math.pi * D ** 3 / 6).to('m**3')
+    V = (math.pi * D**3 / 6).to("m**3")
     return V
 
 
-def cuboid_volume(length, width, height):
+def cuboid_volume(
+    length: QuantityLike,
+    width: QuantityLike,
+    height: QuantityLike,
+) -> Quantity:
     """
     长方体体积。
 
@@ -67,9 +74,9 @@ def cuboid_volume(length, width, height):
     :param height: 高度(m)
     :return: 体积(m³)
     """
-    L = ensure_quantity(length, 'm')
-    W = ensure_quantity(width, 'm')
-    H = ensure_quantity(height, 'm')
+    L = set_quantity(length, "m")
+    W = set_quantity(width, "m")
+    H = set_quantity(height, "m")
 
-    V = (L * W * H).to('m**3')
+    V = (L * W * H).to("m**3")
     return V

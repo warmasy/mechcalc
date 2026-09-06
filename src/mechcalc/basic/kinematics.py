@@ -3,10 +3,12 @@
 直线运动的基本公式：速度、位移、加速度。
 """
 
-from ..core.units import ensure_quantity
+from pint import Quantity
+
+from ..core.units import QuantityLike, set_quantity
 
 
-def velocity(displacement, time):
+def velocity(displacement: QuantityLike, time: QuantityLike) -> Quantity:
     """
     平均速度 / 匀速运动速度。
 
@@ -16,13 +18,13 @@ def velocity(displacement, time):
     :param time: 时间(s)
     :return: 速度(m/s)
     """
-    dist = ensure_quantity(displacement, 'm')
-    t = ensure_quantity(time, 's')
-    v = (dist / t).to('m/s')
+    dist = set_quantity(displacement, "m")
+    t = set_quantity(time, "s")
+    v = (dist / t).to("m/s")
     return v
 
 
-def displacement(velocity, time):
+def displacement(velocity: QuantityLike, time: QuantityLike) -> Quantity:
     """
     匀速运动位移。
 
@@ -32,13 +34,13 @@ def displacement(velocity, time):
     :param time: 时间(s)
     :return: 位移(m)
     """
-    v = ensure_quantity(velocity, 'm/s')
-    t = ensure_quantity(time, 's')
-    s_val = (v * t).to('m')
+    v = set_quantity(velocity, "m/s")
+    t = set_quantity(time, "s")
+    s_val = (v * t).to("m")
     return s_val
 
 
-def acceleration(velocity_change, time):
+def acceleration(velocity_change: QuantityLike, time: QuantityLike) -> Quantity:
     """
     加速度（速度变化量 / 时间）。
 
@@ -48,13 +50,13 @@ def acceleration(velocity_change, time):
     :param time: 时间(s)
     :return: 加速度(m/s²)
     """
-    dv = ensure_quantity(velocity_change, 'm/s')
-    t = ensure_quantity(time, 's')
-    a = (dv / t).to('m/s**2')
+    dv = set_quantity(velocity_change, "m/s")
+    t = set_quantity(time, "s")
+    a = (dv / t).to("m/s**2")
     return a
 
 
-def uniform_motion(velocity, time):
+def uniform_motion(velocity: QuantityLike, time: QuantityLike) -> dict[str, Quantity]:
     """
     匀速直线运动综合计算。
 
@@ -62,13 +64,18 @@ def uniform_motion(velocity, time):
     :param time: 时间(s)
     :return: {'displacement': 位移(m), 'velocity': 速度(m/s)}
     """
-    v = ensure_quantity(velocity, 'm/s')
-    t = ensure_quantity(time, 's')
-    s_val = (v * t).to('m')
-    return {'displacement': s_val, 'velocity': v}
+    v = set_quantity(velocity, "m/s")
+    t = set_quantity(time, "s")
+    s_val = (v * t).to("m")
+    return {"displacement": s_val, "velocity": v}
 
 
-def uniform_acceleration(v0, v1, t, s=None):
+def uniform_acceleration(
+    v0: QuantityLike,
+    v1: QuantityLike,
+    t: QuantityLike,
+    s: QuantityLike = None,
+) -> dict[str, Quantity]:
     """
     匀加速直线运动综合计算。
 
@@ -81,17 +88,17 @@ def uniform_acceleration(v0, v1, t, s=None):
     :param s: 位移(m)，可选，用于校验
     :return: {'acceleration': 加速度, 'displacement': 位移, 'avg_velocity': 平均速度}
     """
-    v0_q = ensure_quantity(v0, 'm/s')
-    v1_q = ensure_quantity(v1, 'm/s')
-    # 注意：参数 s 与单位秒同名，这里用 ensure_quantity 统一处理
-    t_q = ensure_quantity(t, 's')
+    v0_q = set_quantity(v0, "m/s")
+    v1_q = set_quantity(v1, "m/s")
+    # 注意：参数 s 与单位秒同名，这里用 set_quantity 统一处理
+    t_q = set_quantity(t, "s")
 
-    a = ((v1_q - v0_q) / t_q).to('m/s**2')
-    s_calc = ((v0_q + v1_q) / 2 * t_q).to('m')
-    v_avg = ((v0_q + v1_q) / 2).to('m/s')
+    a = ((v1_q - v0_q) / t_q).to("m/s**2")
+    s_calc = ((v0_q + v1_q) / 2 * t_q).to("m")
+    v_avg = ((v0_q + v1_q) / 2).to("m/s")
 
     return {
-        'acceleration': a,
-        'displacement': s_calc,
-        'avg_velocity': v_avg,
+        "acceleration": a,
+        "displacement": s_calc,
+        "avg_velocity": v_avg,
     }

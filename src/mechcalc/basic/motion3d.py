@@ -11,15 +11,16 @@
 """
 
 import numpy as np
+from pint import Quantity
 
-from ..core.units import Q_, to_mag, ensure_quantity
-from ..core.linalg import as_vec3, skew
+from ..core.linalg import VecLike, as_vec3, skew
+from ..core.units import Q_, QuantityLike, set_quantity, to_mag
 
 
-def _as_tensor(inertia_tensor):
+def _as_tensor(inertia_tensor: Quantity | np.ndarray) -> np.ndarray:
     """惯量张量输入规范化 -> (3,3) SI 数值数组。裸数组按 kg·m² 解释。"""
-    if hasattr(inertia_tensor, 'magnitude'):
-        arr = np.asarray(inertia_tensor.to('kg*m**2').magnitude, dtype=float)
+    if hasattr(inertia_tensor, "magnitude"):
+        arr = np.asarray(inertia_tensor.to("kg*m**2").magnitude, dtype=float)
     else:
         arr = np.asarray(inertia_tensor, dtype=float)
     if arr.shape != (3, 3):
@@ -27,7 +28,7 @@ def _as_tensor(inertia_tensor):
     return arr
 
 
-def point_velocity(angular_velocity, position):
+def point_velocity(angular_velocity: VecLike, position: VecLike) -> Quantity:
     """
     旋转刚体上一点的线速度。
 
@@ -37,12 +38,12 @@ def point_velocity(angular_velocity, position):
     :param position: 相对转轴的位置向量 [x, y, z](m)
     :return: 线速度向量(m/s)
     """
-    w = as_vec3(angular_velocity, 'rad/s')
-    r = as_vec3(position, 'm')
-    return Q_(skew(w) @ r, 'm/s')
+    w = as_vec3(angular_velocity, "rad/s")
+    r = as_vec3(position, "m")
+    return Q_(skew(w) @ r, "m/s")
 
 
-def centripetal_acceleration(angular_velocity, position):
+def centripetal_acceleration(angular_velocity: VecLike, position: VecLike) -> Quantity:
     """
     向心加速度。
 
@@ -52,13 +53,16 @@ def centripetal_acceleration(angular_velocity, position):
     :param position: 相对转轴的位置向量 [x, y, z](m)
     :return: 向心加速度向量(m/s²)
     """
-    w = as_vec3(angular_velocity, 'rad/s')
-    r = as_vec3(position, 'm')
+    w = as_vec3(angular_velocity, "rad/s")
+    r = as_vec3(position, "m")
     W = skew(w)
-    return Q_(W @ W @ r, 'm/s**2')
+    return Q_(W @ W @ r, "m/s**2")
 
 
-def rotational_kinetic_energy(inertia_tensor, angular_velocity):
+def rotational_kinetic_energy(
+    inertia_tensor: Quantity | np.ndarray,
+    angular_velocity: VecLike,
+) -> Quantity:
     """
     转动动能。
 
@@ -69,11 +73,14 @@ def rotational_kinetic_energy(inertia_tensor, angular_velocity):
     :return: 动能(J)
     """
     I = _as_tensor(inertia_tensor)
-    w = as_vec3(angular_velocity, 'rad/s')
-    return Q_(0.5 * float(w @ I @ w), 'J')
+    w = as_vec3(angular_velocity, "rad/s")
+    return Q_(0.5 * float(w @ I @ w), "J")
 
 
-def angular_momentum(inertia_tensor, angular_velocity):
+def angular_momentum(
+    inertia_tensor: Quantity | np.ndarray,
+    angular_velocity: VecLike,
+) -> Quantity:
     """
     角动量。
 
@@ -84,11 +91,15 @@ def angular_momentum(inertia_tensor, angular_velocity):
     :return: 角动量向量(kg·m²/s)
     """
     I = _as_tensor(inertia_tensor)
-    w = as_vec3(angular_velocity, 'rad/s')
-    return Q_(I @ w, 'kg*m**2/s')
+    w = as_vec3(angular_velocity, "rad/s")
+    return Q_(I @ w, "kg*m**2/s")
 
 
-def gravity_force(mass, rotation=None, g=9.80665):
+def gravity_force(
+    mass: QuantityLike,
+    rotation: np.ndarray | list | tuple | None = None,
+    g: QuantityLike = 9.80665,
+) -> Quantity:
     """
     重力向量。
 
@@ -101,9 +112,9 @@ def gravity_force(mass, rotation=None, g=9.80665):
     :param g: 重力加速度(m/s²)，默认 9.80665
     :return: 重力向量(N)
     """
-    m = ensure_quantity(mass, 'kg')
-    g_q = ensure_quantity(g, 'm/s**2')
-    F_mag = to_mag((m * g_q).to('N'), 'N')
+    m = set_quantity(mass, "kg")
+    g_q = set_quantity(g, "m/s**2")
+    F_mag = to_mag((m * g_q).to("N"), "N")
     vec = np.array([0.0, 0.0, -F_mag])
 
     if rotation is not None:
@@ -112,4 +123,4 @@ def gravity_force(mass, rotation=None, g=9.80665):
             raise ValueError(f"rotation 需要 3×3 矩阵，得到形状 {R.shape}")
         vec = R @ vec
 
-    return ensure_quantity(vec, 'N')
+    return set_quantity(vec, "N")

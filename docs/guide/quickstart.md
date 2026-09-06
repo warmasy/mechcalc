@@ -16,8 +16,8 @@ pip install -e .
 ```python
 import mechcalc as mc
 
-J = mc.solid_cylinder(10, 100)     # <Quantity(0.0125, 'kg*m**2')>
-omega = mc.angular_velocity(1400)  # rpm -> rad/s
+J = mc.cylinder(10, 100, 200)['J_y']  # <Quantity(0.0125, 'kg*m**2')> 绕对称轴
+omega = mc.angular_velocity(1400)     # rpm -> rad/s
 
 # 直接参与后续计算，单位自动推导
 T = 0.5 * J * omega ** 2

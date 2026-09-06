@@ -23,3 +23,23 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+mechcalc = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",   # 行长由 line-length=100 控制，docstring 含公式不强制换行
+    "E741",   # l1/l2/a/b 等是《机械设计手册》标准参数名，I 是惯量张量惯例命名
+    "SIM105", # 保持显式 try/except 风格
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011", "SIM108"]
+

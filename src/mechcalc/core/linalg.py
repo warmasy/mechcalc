@@ -19,12 +19,21 @@
 """
 
 import math
+from typing import TypeAlias
+
 import numpy as np
+from pint import Quantity
+
+from .units import QuantityLike
+
+# 向量输入：裸 list/tuple/ndarray 或带数组的 Quantity
+VecLike: TypeAlias = Quantity | list | tuple | np.ndarray
 
 
 # ==================== 输入规范化 ====================
 
-def as_vec3(value, unit):
+
+def as_vec3(value: VecLike, unit: str) -> np.ndarray:
     """
     三维向量输入规范化 -> (3,) SI 数值数组。
 
@@ -35,7 +44,7 @@ def as_vec3(value, unit):
     :param unit: 目标单位字符串（SI）
     :return: np.ndarray, shape (3,)
     """
-    if hasattr(value, 'magnitude'):
+    if hasattr(value, "magnitude"):
         arr = np.asarray(value.to(unit).magnitude, dtype=float)
     else:
         arr = np.asarray(value, dtype=float)
@@ -44,7 +53,7 @@ def as_vec3(value, unit):
     return arr
 
 
-def as_vecs(value):
+def as_vecs(value: VecLike) -> np.ndarray:
     """
     方向向量规范化，支持单方向 (3,) 或批量 (N, 3)，自动单位化。
 
@@ -53,7 +62,7 @@ def as_vecs(value):
     :param value: 方向向量，形状 (3,) 或 (N, 3)
     :return: 单位化后的 np.ndarray，形状同输入
     """
-    if hasattr(value, 'magnitude'):
+    if hasattr(value, "magnitude"):
         n = np.asarray(value.magnitude, dtype=float)
     else:
         n = np.asarray(value, dtype=float)
@@ -64,7 +73,8 @@ def as_vecs(value):
 
 # ==================== 向量运算 ====================
 
-def skew(w):
+
+def skew(w: np.ndarray | list | tuple) -> np.ndarray:
     """
     反对称矩阵（叉乘矩阵）。
 
@@ -74,12 +84,10 @@ def skew(w):
     :return: 3×3 反对称矩阵
     """
     w = np.asarray(w, dtype=float)
-    return np.array([[0, -w[2], w[1]],
-                     [w[2], 0, -w[0]],
-                     [-w[1], w[0], 0]])
+    return np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
 
-def unit_vector(v):
+def unit_vector(v: np.ndarray | list | tuple) -> np.ndarray:
     """
     单位化向量。
 
@@ -92,14 +100,15 @@ def unit_vector(v):
 
 # ==================== 旋转矩阵 ====================
 
-def _as_rad(angle):
+
+def _as_rad(angle: QuantityLike) -> float:
     """角度规范化 -> 弧度浮点数。接受 float(rad) 或 Quantity（自动换算 deg）。"""
-    if hasattr(angle, 'magnitude'):
-        return float(angle.to('rad').magnitude)
+    if hasattr(angle, "magnitude"):
+        return float(angle.to("rad").magnitude)
     return float(angle)
 
 
-def rot_x(angle):
+def rot_x(angle: QuantityLike) -> np.ndarray:
     """
     绕 x 轴旋转矩阵（右手系）。
 
@@ -108,12 +117,10 @@ def rot_x(angle):
     """
     a = _as_rad(angle)
     c, s = math.cos(a), math.sin(a)
-    return np.array([[1, 0, 0],
-                     [0, c, -s],
-                     [0, s, c]])
+    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
 
-def rot_y(angle):
+def rot_y(angle: QuantityLike) -> np.ndarray:
     """
     绕 y 轴旋转矩阵（右手系）。
 
@@ -122,12 +129,10 @@ def rot_y(angle):
     """
     a = _as_rad(angle)
     c, s = math.cos(a), math.sin(a)
-    return np.array([[c, 0, s],
-                     [0, 1, 0],
-                     [-s, 0, c]])
+    return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
-def rot_z(angle):
+def rot_z(angle: QuantityLike) -> np.ndarray:
     """
     绕 z 轴旋转矩阵（右手系）。
 
@@ -136,6 +141,4 @@ def rot_z(angle):
     """
     a = _as_rad(angle)
     c, s = math.cos(a), math.sin(a)
-    return np.array([[c, -s, 0],
-                     [s, c, 0],
-                     [0, 0, 1]])
+    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])

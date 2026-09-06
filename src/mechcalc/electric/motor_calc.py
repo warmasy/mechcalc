@@ -19,12 +19,18 @@
     {'value': 879.6..., 'unit': 'W'}
 """
 
-from ..core.units import ensure_quantity
-from ..basic.rotation import angular_velocity
+from pint import Quantity
+
 from ..basic.energy import torque_power
+from ..basic.rotation import angular_velocity
+from ..core.units import QuantityLike, set_quantity
 
 
-def motor_calc(load_torque, load_speed, safety_factor=1.2):
+def motor_calc(
+    load_torque: QuantityLike,
+    load_speed: QuantityLike,
+    safety_factor: float = 1.2,
+) -> dict[str, Quantity]:
     """
     电机需求参数计算。
 
@@ -38,17 +44,17 @@ def motor_calc(load_torque, load_speed, safety_factor=1.2):
               'required_speed': 所需转速(rpm),
               'required_power': 所需功率(W)}
     """
-    T = ensure_quantity(load_torque, 'N*m')
-    n = ensure_quantity(load_speed, 'rpm')
+    T = set_quantity(load_torque, "N*m")
+    n = set_quantity(load_speed, "rpm")
 
-    T_req = (T * float(safety_factor)).to('N*m')
+    T_req = (T * float(safety_factor)).to("N*m")
 
     # 复用 basic 模块：rpm -> rad/s，扭矩×角速度 -> 功率
     omega = angular_velocity(n)
     P_req = torque_power(T_req, omega)
 
     return {
-        'required_torque': T_req,
-        'required_speed': n,
-        'required_power': P_req,
+        "required_torque": T_req,
+        "required_speed": n,
+        "required_power": P_req,
     }

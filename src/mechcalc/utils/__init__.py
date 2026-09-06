@@ -6,5 +6,7 @@
 from .result import Result, calc_batch, to_result
 
 __all__ = [
-    'Result', 'calc_batch', 'to_result',
+    "Result",
+    "calc_batch",
+    "to_result",
 ]

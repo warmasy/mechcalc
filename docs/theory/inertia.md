@@ -14,14 +14,14 @@ $r$ 为质元到转轴的垂直距离。同一物体绕不同轴的惯量完全�
 
 ### 实心圆柱（绕对称轴）
 
-质量 $m$、外径 $D$ 的实心圆柱绕自身对称轴：
+质量 $m$、直径 $D$ 的实心圆柱绕自身对称轴（与长度无关）：
 
 $$
-J = \frac{m D^2}{8}
+J = \frac{m D^2}{8} = \frac{m R^2}{2}
 $$
 
 ```python
-mc.solid_cylinder(mass=10, outer_diameter=100)   # 0.0125 kg·m²
+mc.cylinder(mass=10, diameter=100, length=200)['J_y']   # 0.0125 kg·m²
 ```
 
 ??? note "推导"
@@ -31,7 +31,7 @@ mc.solid_cylinder(mass=10, outer_diameter=100)   # 0.0125 kg·m²
     J = \int_0^R r^2\, dm = \frac{2m}{R^2}\cdot\frac{R^4}{4} = \frac{mR^2}{2} = \frac{mD^2}{8}
     $$
 
-### 空心圆柱
+### 空心圆柱（圆筒）
 
 外径 $D$、内径 $d$：
 
@@ -39,14 +39,17 @@ $$
 J = \frac{m(D^2 + d^2)}{8}
 $$
 
+```python
+mc.tube(mass=10, outer_diameter=100, inner_diameter=50, length=200)['J_y']
+```
+
 ### 其他
 
 | 函数 | 公式 |
 |------|------|
 | `point_mass(m, r)` | $J = m r^2$ |
-| `straight_rod(m, l)` | $J = \frac{m l^2}{12}$（过质心、垂直于杆） |
+| `inclined_rod(m, l, alpha)` | $J_c = \frac{m(l\sin\alpha)^2}{12}$（$\alpha=90°$ 时为 $\frac{ml^2}{12}$） |
 | `ball_screw(m, p)` | $J = m\left(\frac{p}{2\pi}\right)^2$ |
-| `conveyor_belt(m, D)` | $J = m\left(\frac{D}{2}\right)^2$ |
 | `gearbox(J_load, ratio)` | $J = \frac{J_{load}}{i^2}$（折算到电机轴） |
 
 ---
@@ -75,7 +78,7 @@ raw = mc.inclined_rod(mass=10, length=400, alpha=60, r=100)
 ```
 
 !!! tip "特例验证"
-    $\alpha = 90°$ 时 $J_c = \frac{ml^2}{12}$，即 `straight_rod` 的结果——库里的互锁测试就是这么校验的。
+    $\alpha = 90°$ 时 $J_c = \frac{ml^2}{12}$，即细杆绕中点的结果——库里的互锁测试就是这么校验的。
 
 ### 倾角对惯量的影响
 
