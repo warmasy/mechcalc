@@ -12,7 +12,9 @@ from ._utils import _disk_slice_Jx, _sum_inertia, _validate_positive, inertia_re
 
 
 def cylinder(
-    mass: QuantityLike, diameter: QuantityLike, length: QuantityLike
+    mass: QuantityLike, 
+    diameter: QuantityLike, 
+    length: QuantityLike
 ) -> dict[str, Quantity]:
     """
     圆柱体（长圆柱，立体形状）。

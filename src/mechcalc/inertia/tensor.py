@@ -103,7 +103,7 @@ def parallel_axis_tensor(
 
     :param inertia_tensor: 质心惯量张量(kg·m²)，裸数组按 kg·m² 解释
     :param mass: 质量(kg)
-    :param offset: 质心到新轴的位移向量 [x, y, z](m)
+    :param offset: 质心到新轴的位移向量 [x, y, z] (m)
     :return: 3×3 惯量张量(kg·m²)
     """
     I = _as_tensor(inertia_tensor)

@@ -78,7 +78,7 @@ ruff format src tests
 
 ```bash
 pip install -e ".[docs]"
-mkdocs serve
+cd documentation && mkdocs serve
 ```
 
 ## License

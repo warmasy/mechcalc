@@ -34,8 +34,8 @@ def point_velocity(angular_velocity: VecLike, position: VecLike) -> Quantity:
 
     v = ω × r
 
-    :param angular_velocity: 角速度向量 [wx, wy, wz](rad/s)
-    :param position: 相对转轴的位置向量 [x, y, z](m)
+    :param angular_velocity: 角速度向量 [wx, wy, wz] (rad/s)
+    :param position: 相对转轴的位置向量 [x, y, z] (m)
     :return: 线速度向量(m/s)
     """
     w = as_vec3(angular_velocity, "rad/s")
@@ -49,8 +49,8 @@ def centripetal_acceleration(angular_velocity: VecLike, position: VecLike) -> Qu
 
     a = ω × (ω × r)
 
-    :param angular_velocity: 角速度向量 [wx, wy, wz](rad/s)
-    :param position: 相对转轴的位置向量 [x, y, z](m)
+    :param angular_velocity: 角速度向量 [wx, wy, wz] (rad/s)
+    :param position: 相对转轴的位置向量 [x, y, z] (m)
     :return: 向心加速度向量(m/s²)
     """
     w = as_vec3(angular_velocity, "rad/s")
@@ -69,7 +69,7 @@ def rotational_kinetic_energy(
     T = ½·ωᵀ·I·ω
 
     :param inertia_tensor: 惯量张量(kg·m²)，裸数组按 kg·m² 解释
-    :param angular_velocity: 角速度向量 [wx, wy, wz](rad/s)
+    :param angular_velocity: 角速度向量 [wx, wy, wz] (rad/s)
     :return: 动能(J)
     """
     I = _as_tensor(inertia_tensor)
@@ -87,7 +87,7 @@ def angular_momentum(
     L = I·ω
 
     :param inertia_tensor: 惯量张量(kg·m²)，裸数组按 kg·m² 解释
-    :param angular_velocity: 角速度向量 [wx, wy, wz](rad/s)
+    :param angular_velocity: 角速度向量 [wx, wy, wz] (rad/s)
     :return: 角动量向量(kg·m²/s)
     """
     I = _as_tensor(inertia_tensor)
